@@ -1,0 +1,15 @@
+{"_id":{"$oid":"5c9251e48d51e71dd8faf0f4"},"Time":"Wed Mar 20 20:14:52 2019","Smell_Sensor":"0\n","People_Counter":"0\n","Soap_Level":"20.0\n"}
+{"_id":{"$oid":"5c9251f38d51e71dd8faf0f5"},"Time":"Wed Mar 20 20:15:07 2019","Smell_Sensor":"0.02526714671332818\n","People_Counter":"11\n","Soap_Level":"18.024402267039502\n"}
+{"_id":{"$oid":"5c9252078d51e71dd8faf0f6"},"Time":"Wed Mar 20 20:15:27 2019","Smell_Sensor":"0.054052240909817445\n","People_Counter":"16\n","Soap_Level":"18.024402267039502\n"}
+{"_id":{"$oid":"5c92521b8d51e71dd8faf0f7"},"Time":"Wed Mar 20 20:15:47 2019","Smell_Sensor":"0.09394651592297396\n","People_Counter":"16\n","Soap_Level":"17.43341760070513\n"}
+{"_id":{"$oid":"5c92522f8d51e71dd8faf0f8"},"Time":"Wed Mar 20 20:16:07 2019","Smell_Sensor":"0.10869604654496504\n","People_Counter":"17\n","Soap_Level":"17.354565484953433\n"}
+{"_id":{"$oid":"5c9252438d51e71dd8faf0f9"},"Time":"Wed Mar 20 20:16:27 2019","Smell_Sensor":"0.12128598455585146\n","People_Counter":"17\n","Soap_Level":"17.226381335038493\n"}
+{"_id":{"$oid":"5c9252578d51e71dd8faf0fa"},"Time":"Wed Mar 20 20:16:47 2019","Smell_Sensor":"0.14926078960229125\n","People_Counter":"21\n","Soap_Level":"17.226381335038493\n"}
+{"_id":{"$oid":"5c92526b8d51e71dd8faf0fb"},"Time":"Wed Mar 20 20:17:07 2019","Smell_Sensor":"0.15108159553150885\n","People_Counter":"39\n","Soap_Level":"17.226381335038493\n"}
+{"_id":{"$oid":"5c92527f8d51e71dd8faf0fc"},"Time":"Wed Mar 20 20:17:27 2019","Smell_Sensor":"0.18605940606814295\n","People_Counter":"52\n","Soap_Level":"15.677889222113064\n"}
+{"_id":{"$oid":"5c9252938d51e71dd8faf0fd"},"Time":"Wed Mar 20 20:17:47 2019","Smell_Sensor":"0.19244256911136967\n","People_Counter":"71\n","Soap_Level":"15.677889222113064\n"}
+{"_id":{"$oid":"5c9252a78d51e71dd8faf0fe"},"Time":"Wed Mar 20 20:18:07 2019","Smell_Sensor":"0.19396109004574136\n","People_Counter":"87\n","Soap_Level":"14.262589059715154\n"}
+{"_id":{"$oid":"5c9252bb8d51e71dd8faf0ff"},"Time":"Wed Mar 20 20:18:27 2019","Smell_Sensor":"0.19827657647535785\n","People_Counter":"96\n","Soap_Level":"14.262589059715154\n"}
+{"_id":{"$oid":"5c9252cf8d51e71dd8faf100"},"Time":"Wed Mar 20 20:18:47 2019","Smell_Sensor":"0.2227073317502317\n","People_Counter":"98\n","Soap_Level":"13.44326540989567\n"}
+{"_id":{"$oid":"5c9252e38d51e71dd8faf101"},"Time":"Wed Mar 20 20:19:07 2019","Smell_Sensor":"0.2564295391220415\n","People_Counter":"116\n","Soap_Level":"13.44326540989567\n"}
+{"_id":{"$oid":"5c9252f78d51e71dd8faf102"},"Time":"Wed Mar 20 20:19:27 2019","Smell_Sensor":"0.3052784466175897\n","People_Counter":"134\n","Soap_Level":"11.728055108942792\n"}
