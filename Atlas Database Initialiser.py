@@ -3,22 +3,30 @@ Python 3.6 and Above
 11 March 2019
 Creates a Database for information on every restroom,
 Takes input as last value from text files created by other sensors, and then truncates those files.
+Input is taken only when significant difference exists between initial(1st) value and current(last)value.
 Text files should be truncated often for optimality
 https://www.w3schools.com/python/python_mongodb_getstarted.asp
 """
 import pymongo
 import time
 import tkinter
-import os
 import datetime
 
 
 
 Database_Name="Restroom_Management"
-Collection_Name="restrooms"
+Collection_Name="restrooms" #for list of restrooms
 file_smellsensor="ammonia.txt"
 file_peoplecounter="VisitorCount.txt"
 file_soaplevel="SoapUsage.txt"
+min_smell_difference=0.3 #in ppm
+min_people_difference=20
+min_soaplevel_difference=0.5 #in cm
+max_len_of_document_buffer_list=5
+max_time_of_holding_buffer=10 #minutes
+
+
+
 
 def select(s): #Command from Select Restroom Button
 	global Collection_Name
@@ -28,8 +36,8 @@ def select(s): #Command from Select Restroom Button
 	window.destroy()
 
 def submit_command():
-    global test_time
-    test_time=int(test_time_input.get()) #May enter characters
+	global test_time
+    test_time=int(test_time_input.get()) #May enter characters, then will cause error
     window.destroy()
 
 window=tkinter.Tk()  #Collection Selector
@@ -100,6 +108,8 @@ window.mainloop()
 print("Minutes to run code:"+str(test_time))
 
 t0=time.perf_counter()
+list_documents=[]
+last_uploaded=time.perf_counter()
 while (time.perf_counter()-t0)/60<test_time:
 	s1=open(file_smellsensor,"r")
 	s2=open(file_peoplecounter,"r")
@@ -121,12 +131,23 @@ while (time.perf_counter()-t0)/60<test_time:
 	s2.close()
 	s3.close()
 
-	#truncate the files
+	if abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference and abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference and abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference:
+		s1.close()
+		s2.close()
+		s3.close()
+		continue
+
+
+
+	#truncate the files and add only latest value for future comparison
 	s1 = open(file_smellsensor, "w")
-	s2 = open(file_peoplecounter, "w")
-	s3 = open(file_soaplevel, "w")
+	s1.write(str(smell[-1][:-1])+"\n")
 	s1.close()
+	s2 = open(file_peoplecounter, "w")
+	s2.write(str(people[-1][:-1]) + "\n")
 	s2.close()
+	s3 = open(file_soaplevel, "w")
+	s3.write(str(soap[-1][:-1]) + "\n")
 	s3.close()
 
 	localtime = str(datetime.datetime.now())
@@ -134,8 +155,17 @@ while (time.perf_counter()-t0)/60<test_time:
 
 	"""Fields of database: 		Time 	 SmellSensor 	 PeopleCounter 		SoapLevel
 	"""
-	mydict = {'Time':localtime, 'Smell_Sensor':float(smell[-1][:-1]), 'People_Counter':float(people[-1][:-1]), 'Soap_Level':float(soap[-1][:-1])}#slicing for excluding trailing \n
+	mydict = {'Time':localtime, 'Smell_Sensor':float(smell[-1][:-1]), 'People_Counter':int(people[-1][:-1]), 'Soap_Level':float(soap[-1][:-1])}#slicing for excluding trailing \n
+	list_documents.append(mydict)
+	if len(list_documents)>max_len_of_document_buffer_list or (time.perf_counter()-last_uploaded)/60>max_time_of_holding_buffer:
+		mycollection.insert_many(list_documents)
+		#for x in list_documents:
+		#	mycollection.insert_one(x)
+		list_documents=[]
+		last_uploaded=time.perf_counter()
+mycollection.insert_many(list_documents)
+#for x in list_documents:
+#	mycollection.insert_one(x)
 
-	x = mycollection.insert_one(mydict)
 for document in mycollection.find():
 	print(document)

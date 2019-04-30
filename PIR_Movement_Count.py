@@ -21,5 +21,5 @@ for i in range((test_time*60)//time):
 	s=open(file_name, "a")
 	s.write(str(randomvalue)+"\n")
 	s.close()
-	randomvalue+=int(uniform(0,time)) #MAX Number of People function of variable time
+	randomvalue+=int(uniform(0,time//2)) #MAX Number of People function of variable time
 	sleep(time)
