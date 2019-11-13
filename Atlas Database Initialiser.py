@@ -19,33 +19,17 @@ Collection_Name="restrooms" #for list of restrooms
 file_smellsensor="ammonia.txt"
 file_peoplecounter="VisitorCount.txt"
 file_soaplevel="SoapUsage.txt"
+file_temperature="Temperature.txt"
+file_humidity="Humidity.txt"
 min_smell_difference=0.3 #in ppm
 min_people_difference=20
 min_soaplevel_difference=0.5 #in cm
+min_temperature_difference=2
+min_humidity_difference=2
 max_len_of_document_buffer_list=5
 max_time_of_holding_buffer=10 #minutes
 
 
-
-
-def select(s): #Command from Select Restroom Button
-	global Collection_Name
-	Collection_Name=s
-	for j in button_list:
-		j.destroy()
-	window.destroy()
-
-def submit_command():
-	global test_time
-    test_time=int(test_time_input.get()) #May enter characters, then will cause error
-    window.destroy()
-
-window=tkinter.Tk()  #Collection Selector
-window_width=800
-window_height=600
-window.geometry(str(window_width)+"x"+str(window_height)+"+300+75") #width x height
-window.resizable(width=False, height=False)
-window.config(bg="#ffd700")
 
 myclient = pymongo.MongoClient("mongodb+srv://shivangitandon:pass@cluster0-0bcsj.mongodb.net/test?retryWrites=true")
 db = myclient.test
@@ -53,26 +37,16 @@ db = myclient.test
 mydb = myclient[Database_Name]
 mycollection = mydb[Collection_Name]
 
-caption = tkinter.Button(window, text="Restroom Name:", relief="flat", state="disabled", bg="#ffd700", width=50)
-caption.grid(row=0,pady=10,padx=200)
-row=1 #preceding rows occupied by caption
-#defaultbg = window.cget('bg')
-button_list=[caption]
-
+print("Enter Restroom Number from among the following:")
+restroom_serial_number=1;
+restroom_serial_hash={}
 for document in mycollection.find({},{"_id":0, "Number":0, "Cleaner_Required":0}):
-	button_list.append(tkinter.Button(window,
-									  text=document["Name"]+", "+document["Location"],
-									  bg="#7fff00",
-									  width=50,
-									  command=lambda s=document["Name"]:select(s)
-									  )
-					   )
-	#button_list[-1].pack()
-	button_list[-1].grid(row=row,pady=5)
-	row+=1
+	print(str(restroom_serial_number)+")"+document["Name"]+", "+document["Location"])
+	restroom_serial_hash[restroom_serial_number]=document["Name"]
+	restroom_serial_number+=1
+Collection_Name=restroom_serial_hash[int(input("Input:"))]
 
-window.protocol("WM_DELETE_WINDOW", lambda :exit(1001))
-window.mainloop()
+test_time=int(input("Enter time to run:")) #May enter characters, then will cause error
 
 
 Database_Name="Restroom_SensorData"
@@ -80,29 +54,6 @@ mydb = myclient[Database_Name]
 mycollection = mydb[Collection_Name]
 
 print("Collection Name Selected:"+Collection_Name)
-
-window=tkinter.Tk() #Time Input
-window_width=400
-window_height=300
-window.geometry(str(window_width)+"x"+str(window_height)+"+450+115") #width x height
-window.resizable(width=False, height=False)
-window.config(bg="#ffd700")
-
-caption = tkinter.Button(window, text="Enter time to Run:", relief="flat", state="disabled", bg="#ffd700", width=50)
-caption.grid(row=0,pady=10,padx=25)
-test_time_input=tkinter.Entry(window)
-submit=tkinter.Button(window,
-              text="Submit",
-              bg="#7fff00",
-              #width=25,
-              command=submit_command
-              )
-
-test_time_input.grid()
-submit.grid(pady=10)
-
-window.protocol("WM_DELETE_WINDOW", lambda :exit(1002))
-window.mainloop()
 
 #test_time=int(input("Enter minutes to run code:"))
 print("Minutes to run code:"+str(test_time))
@@ -114,56 +65,83 @@ while (time.perf_counter()-t0)/60<test_time:
 	s1=open(file_smellsensor,"r")
 	s2=open(file_peoplecounter,"r")
 	s3=open(file_soaplevel, "r")
+	s4=open(file_temperature, "r")
+	s5=open(file_humidity, "r")
 
 	#latest values
 	smell=s1.readlines()
 	people=s2.readlines()
 	soap=s3.readlines()
-
-	if not smell or not people or not soap:  # empty files
-		print("Empty file Discovered. Retrying!")
-		s1.close()
-		s2.close()
-		s3.close()
-		continue
+	temperature=s4.readlines()
+	humidity=s5.readlines()
 
 	s1.close()
 	s2.close()
 	s3.close()
+	s4.close()
+	s5.close()
 
-	if abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference and abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference and abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference:
-		s1.close()
-		s2.close()
-		s3.close()
+	if not smell and not people and not soap and not temperature and not humidity:  # empty files
+		print("Empty file Discovered. Retrying!")
+		continue
+
+	if abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference and \
+		abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference and \
+		abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference and \
+		abs(float(temperature[-1][:-1])-float(temperature[0][:-1]))<min_temperature_difference and \
+		abs(float(humidity[-1][:-1])-float(humidity[0][:-1]))<min_humidity_difference:#slicing for excluding trailing \n
 		continue
 
 
 
 	#truncate the files and add only latest value for future comparison
-	s1 = open(file_smellsensor, "w")
-	s1.write(str(smell[-1][:-1])+"\n")
-	s1.close()
-	s2 = open(file_peoplecounter, "w")
-	s2.write(str(people[-1][:-1]) + "\n")
-	s2.close()
-	s3 = open(file_soaplevel, "w")
-	s3.write(str(soap[-1][:-1]) + "\n")
-	s3.close()
+	if smell:# smell value will be false if file was empty
+		s1 = open(file_smellsensor, "w")
+		s1.write(str(smell[-1][:-1])+"\n")
+		s1.close()
+	if people:
+		s2 = open(file_peoplecounter, "w")
+		s2.write(str(people[-1][:-1]) + "\n")
+		s2.close()
+	if soap:
+		s3 = open(file_soaplevel, "w")
+		s3.write(str(soap[-1][:-1]) + "\n")
+		s3.close()
+	if temperature:
+		s4=open(file_temperature,"w")
+		s4.write(str(temperature[-1][:-1])+"\n")
+		s4.close()
+	if humidity:
+		s5=open(file_humidity,"w")
+		s5.write(str(humidity[-1][:-1])+"\n")
+		s5.close()
 
 	localtime = str(datetime.datetime.now())
 
 
-	"""Fields of database: 		Time 	 SmellSensor 	 PeopleCounter 		SoapLevel
+	"""Fields of database: 		Time 	 Smell_Sensor 	 People_Counter 	Soap_Level 	Temperature 	Humidity
 	"""
-	mydict = {'Time':localtime, 'Smell_Sensor':float(smell[-1][:-1]), 'People_Counter':int(people[-1][:-1]), 'Soap_Level':float(soap[-1][:-1])}#slicing for excluding trailing \n
+	mydict = {'Time':localtime}
+	if smell:	
+		mydict['Smell_Sensor']=float(smell[-1][:-1])
+	if people:	
+		mydict['People_Counter']=int(people[-1][:-1])
+	if soap:	
+		mydict['Soap_Level']=float(soap[-1][:-1])
+	if temperature:	
+		mydict['Temperature']=float(temperature[-1][:-1])
+	if humidity:	
+		mydict['Humidity']=float(humidity[-1][:-1])
 	list_documents.append(mydict)
+	
 	if len(list_documents)>max_len_of_document_buffer_list or (time.perf_counter()-last_uploaded)/60>max_time_of_holding_buffer:
 		mycollection.insert_many(list_documents)
 		#for x in list_documents:
 		#	mycollection.insert_one(x)
 		list_documents=[]
 		last_uploaded=time.perf_counter()
-mycollection.insert_many(list_documents)
+if len(list_documents)>0:	
+	mycollection.insert_many(list_documents)
 #for x in list_documents:
 #	mycollection.insert_one(x)
 
