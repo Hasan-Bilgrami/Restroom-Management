@@ -14,5 +14,6 @@ def get_data():
 # Example usage
 while True:
 	get_data()
-	print("Your data(s) which we received from arduino: "+data)
-	input("To test it again press enter.")
+	#print("Your data(s) which we received from arduino: "+data)
+	
+	
