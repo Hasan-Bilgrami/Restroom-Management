@@ -21,28 +21,32 @@ def get_data():
 
 # Example usage
 while True:
-	data=get_data()
-	print("Your data(s) which we received from arduino: "+data)
-	received_data=data.split()
-	if (len(received_data)==0):
-		continue
-	elif received_data[0]=="Temperature":#Temp
-		s=open(file_temperature, "a")
-		s.write(str(received_data[1])+"\n")
-		s.close()
+	try:
+		data=get_data()
+		print("Your data(s) which we received from arduino: "+data)
+		received_data=data.split()
+		if (len(received_data)==0):
+			continue
+		elif received_data[0]=="Temperature":#Temp
+			s=open(file_temperature, "a")
+			s.write(str(received_data[1])+"\n")
+			s.close()
 
-	elif received_data[0]=="Humidity":#Humidity
-		s=open(file_humidity, "a")
-		s.write(str(received_data[1])+"\n")
-		s.close()
+		elif received_data[0]=="Humidity":#Humidity
+			s=open(file_humidity, "a")
+			s.write(str(received_data[1])+"\n")
+			s.close()
 
-	elif received_data[0]=="PplCnt" and int(received_data[1])==1:#Motion Detected	
-		people_counter_value+=1
-		s=open(file_peoplecounter, "a")
-		s.write(str(people_counter_value//2)+"\n")
-		s.close()
+		elif received_data[0]=="PplCnt" and int(received_data[1])==1:#Motion Detected	
+			people_counter_value+=1
+			s=open(file_peoplecounter, "a")
+			s.write(str(people_counter_value//2)+"\n")
+			s.close()
 
-	elif received_data[0]=="AirQua":#Smell Sensor
-		s=open(file_smellsensor, "a")
-		s.write(str(received_data[1])+"\n")
-		s.close()
+		elif received_data[0]=="AirQua":#Smell Sensor
+			s=open(file_smellsensor, "a")
+			s.write(str(received_data[1])+"\n")
+			s.close()
+
+	except Exception as e:
+		print(e)
