@@ -2,7 +2,7 @@
 Python 3.6 and Above
 11 March 2019
 Creates a Database for information on every restroom,
-Takes input as last value from text files created by other sensors, and then truncates those files.
+Takes input as last value from text files created by other sensors, and then truncates those files, and writes the latest value in the first line for future comparison.
 Input is taken only when significant difference exists between initial(1st) value and current(last)value.
 Text files should be truncated often for optimality
 https://www.w3schools.com/python/python_mongodb_getstarted.asp
@@ -37,6 +37,9 @@ db = myclient.test
 mydb = myclient[Database_Name]
 mycollection = mydb[Collection_Name]
 
+
+'''
+#Used for selecting separate collections
 print("Enter Restroom Number from among the following:")
 restroom_serial_number=1;
 restroom_serial_hash={}
@@ -47,7 +50,10 @@ for document in mycollection.find({},{"_id":0, "Number":0, "Cleaner_Required":0}
 Collection_Name=restroom_serial_hash[int(input("Input:"))]
 
 test_time=int(input("Enter time to run:")) #May enter characters, then will cause error
+'''
 
+Collection_Name='Computer Center'
+test_time=-1#Run for infinite time
 
 Database_Name="Restroom_SensorData"
 mydb = myclient[Database_Name]
@@ -61,7 +67,7 @@ print("Minutes to run code:"+str(test_time))
 t0=time.perf_counter()
 list_documents=[]
 last_uploaded=time.perf_counter()
-while (time.perf_counter()-t0)/60<test_time:
+while True if test_time==-1 else (time.perf_counter()-t0)/60<test_time:
 	s1=open(file_smellsensor,"r")
 	s2=open(file_peoplecounter,"r")
 	s3=open(file_soaplevel, "r")
