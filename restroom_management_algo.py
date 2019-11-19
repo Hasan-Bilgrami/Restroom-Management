@@ -223,7 +223,7 @@ if 'People_Counter' in document and 'Smell_Sensor' in document and 'Soap_Level' 
 
 def comparison(time):
     time=datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
-    Collection_Name = "MNNIT"
+    Collection_Name = "Computer Center"
     # db = myclient.test
     mydb = myclient["Restroom_SensorData"]
     mycollection = mydb[Collection_Name]
@@ -245,18 +245,15 @@ def comparison(time):
 
 
 
-
-
-
-
-
 mydb=myclient['Restroom_Management']
 Collection_Name1="user_feedback"
 mycollection2 = mydb[Collection_Name1]
 feedbacks=[]
 temp=[]
 for document in mycollection2.find():
-    current_document = comparison(document['Time'])  # returns appropriate document
+    #print(document)
+    current_document = comparison(document['Time'])
+    #print(current_document)  # returns appropriate document
     if current_document==None:
         continue
     #temp=[document['Odour_level'],document['Cleanliness_level'],document['Is_soap'],document['Is_water'],document['Overall_rating'],document['Time'],current_document['Smell_Sensor'],current_document['People_Counter'],current_document['Soap_Level']]
@@ -274,11 +271,13 @@ for document in mycollection2.find():
     else:
         temp.append(-1)
     feedbacks.append(temp)
-print(feedbacks)
+#print(feedbacks)
+#print("feed len "+str(len(feedbacks)))
 #updating treshold value of ammonia
 
 df=pd.DataFrame(columns=["Odour", "Cleanliness", "Soap Availability","Water availability","Overall Rating","Time","ammonia(in PPM)","People Count","Soap Level"],data=feedbacks)
 print(df)
+#exit(0)
 ammonia=df['ammonia(in PPM)']
 people=df['People Count']
 soap=df['Soap Level']
@@ -288,31 +287,40 @@ usersoap=df['Soap Availability']
 userwater=df['Water availability']
 useroverall=df['Overall Rating']
 
-if 'Smell_Sensor' in document:
+
+doc=mycollection.find_one(sort=[("Time",-1)])
+
+
+if 'Smell_Sensor' in doc:
     weight=[]
     for i in range(len(ammonia)):
         if ammonia[i] >= 20:
             weight.append(1)
         else:
-            ammo_prop=ammonia[i]/5+1
-            user_feedback=userodour[i]
-            ammo_prop=6-ammo_prop     #to calculate deviation
-            dev=abs(ammo_prop-user_feedback)  #deviation
-            weight.append(1-(1/4)*dev)
+            if ammonia[i]!=-1:
+                ammo_prop=ammonia[i]/5+1
+                user_feedback=userodour[i]
+                ammo_prop=6-ammo_prop     #to calculate deviation
+                dev=abs(ammo_prop-user_feedback)  #deviation
+                weight.append(1-(1/4)*dev)
+    length=len(weight)
     df['weight']=weight
     feedback_with_weight=[]
     #total_weight=sum(weight)
     #mean_weight=total_weight/len(ammonia)
-
+    counter=0
     literacy_rate=0.7    #In Fractions
     for i in range(len(ammonia)):
-        feedback_with_weight.append(userodour[i]*weight[i]*literacy_rate)
+        if ammonia[i]!=-1:
+            feedback_with_weight.append(userodour[i]*weight[counter]*literacy_rate)
+            counter=counter+1
+
     minimum=min(feedback_with_weight)
     maximum=max(feedback_with_weight)
     diff=maximum-minimum
     mean_feedback=statistics.mean(feedback_with_weight)
     normalized_weight=[]
-    for i in range(len(ammonia)):
+    for i in range(length):
         x=abs(feedback_with_weight[i]-mean_feedback)/diff
         if(feedback_with_weight[i]<mean_feedback):
             normalized_weight.append(0.5-x)
@@ -334,21 +342,26 @@ if 'Smell_Sensor' in document:
     print("The updated Ammonia threshold is\n")
     print(ammonia_treshold)
 
-if 'People_Counter' in document:
+if 'People_Counter' in doc:
     weight=[]
     for i in range(len(people)):
         if people[i] >= 200:
             weight.append(1)
         else:
-            ammo=people[i]/40+1
-            user_feedback=userclean[i]
-            ammo=6-ammo     #to calculate deviation
-            dev=abs(ammo-user_feedback)  #deviation
-            weight.append(1-(1/4)*dev)
+            if people[i]!=-1:
+                ammo=people[i]/40+1
+                user_feedback=userclean[i]
+                ammo=6-ammo     #to calculate deviation
+                dev=abs(ammo-user_feedback)  #deviation
+                weight.append(1-(1/4)*dev)
+    length=len(weight)
     df['weight']=weight
     feedback_with_weight=[]
+    counter=0
     for i in range(len(people)):
-        feedback_with_weight.append(userclean[i]*weight[i])
+        if people[i]!=-1:
+            feedback_with_weight.append(userclean[i]*weight[counter]*literacy_rate)
+            counter=counter+1
     total_weight=sum(weight)
     new_feedback=sum(feedback_with_weight)/total_weight
     print("the mapped cleanliness feedback is")
