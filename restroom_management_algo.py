@@ -38,9 +38,9 @@ def updation(sense=0, threshold=0):     #Alerts cleaner when restrom reuires cle
     if sense==0: #ML output    
         message = "Computer Center Restroom(M/F) requires cleaning." # Your message to send.
     elif sense==1: #Ammonia threshold exceeded
-        message="Ammonia Level at Computer Center Restroom(M/F) has exceeded the threshold value of "+str(threshold)+". \nCleaner is required."
+        message="Ammonia Level at Computer Center Restroom(M/F) has exceeded the threshold value at "+str(threshold)+". \nCleaner is required."
     elif sense==2: #People Counter exceeded
-        message="People Count at Computer Center Restroom (M/F) has exceeded the threshold value of "+str(threshold)+". \nCleaner is required."
+        message="People Count at Computer Center Restroom (M/F) has exceeded the threshold value at "+str(threshold)+". \nCleaner is required."
     elif sense==3: #Soap Dispenser Empty
         message="Soap quantity in Soap Dispenser at Computer Center Restroom(M/F) is below "+str(threshold)+". \nRe-fill is required."
 

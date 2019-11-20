@@ -1,8 +1,14 @@
 #!/bin/bash
-import os
+import time
 import subprocess
 
-#os.system("cd /home/pi/Desktop/restroom_management/")
-#os.system("source /home/pi/Desktop/restroom_management/bin/activate")
+time.sleep(30)
+subprocess.call(r"python /home/pi/Desktop/restroom_management/nodeMCU_pi_interfacing_dht.py &>/home/pi/Desktop/restroom_management/boot_output.txt &", shell=True)
+subprocess.call(r"python /home/pi/Desktop/restroom_management/nodeMCU_pi_interfacing_pir.py &>/home/pi/Desktop/restroom_management/boot_output.txt &", shell=True)
+time.sleep(10)
+subprocess.call(r"python /home/pi/Desktop/restroom_management/Atlas\ Database\ Initialiser.py &>/home/pi/Desktop/restroom_management/boot_output.txt &", shell=True)
+time.sleep(60)
 
-subprocess.call(r"python /home/pi/Desktop/restroom_management/Atlas\ Database\ Initialiser.py", shell=True)
+while True:
+	subprocess.call(r"python /home/pi/Desktop/restroom_management/restroom_management_algo.py &>/home/pi/Desktop/restroom_management/boot_output.txt ", shell=True)
+	time.sleep(2*60)

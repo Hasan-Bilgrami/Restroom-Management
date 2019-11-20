@@ -21,14 +21,25 @@ file_peoplecounter="VisitorCount.txt"
 file_soaplevel="SoapUsage.txt"
 file_temperature="Temperature.txt"
 file_humidity="Humidity.txt"
-min_smell_difference=0.3 #in ppm
+min_smell_difference=5 #in ppm
 min_people_difference=20
-min_soaplevel_difference=0.5 #in cm
+min_soaplevel_difference=0.00001 #in cm
 min_temperature_difference=2
-min_humidity_difference=2
+min_humidity_difference=3
 max_len_of_document_buffer_list=5
-max_time_of_holding_buffer=10 #minutes
+max_time_of_holding_buffer=1 #minutes
 
+
+s1=open(file_smellsensor,"a")
+s1.close()
+s2=open(file_peoplecounter,"a")
+s2.close()
+s3=open(file_soaplevel, "a")
+s3.close()
+s4=open(file_temperature, "a")
+s4.close()
+s5=open(file_humidity, "a")
+s5.close()
 
 
 myclient = pymongo.MongoClient("mongodb+srv://shivangitandon:pass@cluster0-0bcsj.mongodb.net/test?retryWrites=true")
@@ -53,7 +64,7 @@ test_time=int(input("Enter time to run:")) #May enter characters, then will caus
 '''
 
 Collection_Name='Computer Center'
-test_time=-1#Run for infinite time
+test_time=-1 #Run for infinite time
 
 Database_Name="Restroom_SensorData"
 mydb = myclient[Database_Name]
@@ -64,18 +75,43 @@ print("Collection Name Selected:"+Collection_Name)
 #test_time=int(input("Enter minutes to run code:"))
 print("Minutes to run code:"+str(test_time))
 
-t0=time.perf_counter()
+t0=time.time()
 list_documents=[]
-last_uploaded=time.perf_counter()
-while True if test_time==-1 else (time.perf_counter()-t0)/60<test_time:
+last_uploaded=time.time()
+while True if test_time==-1 else (time.time()-t0)/60<test_time:
 	s1=open(file_smellsensor,"r")
+	smell=s1.readlines()
+	s1.close()
+	while smell and any(x not in '0123456789.' for x in smell[-1][:-1]):
+		smell=smell[:-1]
+
+
 	s2=open(file_peoplecounter,"r")
+	people=s2.readlines()
+	s2.close()
+	while people and any(x not in '0123456789.' for x in people[-1][:-1]):
+                people=people[:-1]
+
 	s3=open(file_soaplevel, "r")
+	soap=s3.readlines()
+	s3.close()
+	while soap and any(x not in '0123456789.' for x in soap[-1][:-1]):
+                soap=soap[:-1]
+
 	s4=open(file_temperature, "r")
+	temperature=s4.readlines()
+	s4.close()
+	while temperature and any(x not in '0123456789.' for x in temperature[-1][:-1]):
+                temperature=temperature[:-1]
+
 	s5=open(file_humidity, "r")
+	humidity=s5.readlines()
+	s5.close()
+	while humidity and any(x not in '0123456789.' for x in humidity[-1][:-1]):
+                humidity=humidity[:-1]
 
 	#latest values
-	smell=s1.readlines()
+	'''smell=s1.readlines()
 	people=s2.readlines()
 	soap=s3.readlines()
 	temperature=s4.readlines()
@@ -85,17 +121,20 @@ while True if test_time==-1 else (time.perf_counter()-t0)/60<test_time:
 	s2.close()
 	s3.close()
 	s4.close()
-	s5.close()
+	s5.close()'''
 
-	if not smell and not people and not soap and not temperature and not humidity:  # empty files
-		print("Empty file Discovered. Retrying!")
-		continue
+	if ((time.time()-last_uploaded) >= max_time_of_holding_buffer*60 or len(list_documents)>max_len_of_document_buffer_list) and len(list_documents)>0:
+                mycollection.insert_many(list_documents)
+                print("Documents Uploaded:")
+                print(list_documents)
+                list_documents=[]
+                last_uploaded=time.time()
 
-	if abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference and \
-		abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference and \
-		abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference and \
-		abs(float(temperature[-1][:-1])-float(temperature[0][:-1]))<min_temperature_difference and \
-		abs(float(humidity[-1][:-1])-float(humidity[0][:-1]))<min_humidity_difference:#slicing for excluding trailing \n
+	if (not smell or abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference) and\
+	(not people or abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference) and\
+	(not soap or abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference) and\
+	(not temperature or abs(float(temperature[-1][:-1])-float(temperature[0][:-1]))<min_temperature_difference) and\
+	(not humidity or abs(float(humidity[-1][:-1])-float(humidity[0][:-1]))<min_humidity_difference):	#slicing for excluding trailing \n
 		continue
 
 
@@ -128,25 +167,21 @@ while True if test_time==-1 else (time.perf_counter()-t0)/60<test_time:
 	"""Fields of database: 		Time 	 Smell_Sensor 	 People_Counter 	Soap_Level 	Temperature 	Humidity
 	"""
 	mydict = {'Time':localtime}
-	if smell:	
+	if smell:
 		mydict['Smell_Sensor']=float(smell[-1][:-1])
-	if people:	
+	if people:
 		mydict['People_Counter']=int(people[-1][:-1])
-	if soap:	
+	if soap:
 		mydict['Soap_Level']=float(soap[-1][:-1])
-	if temperature:	
+	if temperature:
 		mydict['Temperature']=float(temperature[-1][:-1])
-	if humidity:	
+	if humidity:
 		mydict['Humidity']=float(humidity[-1][:-1])
 	list_documents.append(mydict)
-	
-	if len(list_documents)>max_len_of_document_buffer_list or (time.perf_counter()-last_uploaded)/60>max_time_of_holding_buffer:
-		mycollection.insert_many(list_documents)
-		#for x in list_documents:
-		#	mycollection.insert_one(x)
-		list_documents=[]
-		last_uploaded=time.perf_counter()
-if len(list_documents)>0:	
+	print("Entry collected:"+str(mydict))
+
+
+if len(list_documents)>0:
 	mycollection.insert_many(list_documents)
 #for x in list_documents:
 #	mycollection.insert_one(x)
