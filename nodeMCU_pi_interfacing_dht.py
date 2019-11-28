@@ -8,6 +8,7 @@ eg:Temperature 23.34
 People counter value is not being reset.
 '''
 import urllib.request as req
+import get_ip_addr
 
 file_smellsensor="ammonia.txt"
 file_peoplecounter="VisitorCount.txt"
@@ -15,14 +16,18 @@ file_soaplevel="SoapUsage.txt"
 file_temperature="Temperature.txt"
 file_humidity="Humidity.txt"
 people_counter_value=0
-url = "http://192.168.43.246/"  # ESP's url, ex: https://192.168.102/ (Esp serial prints it when connected to wifi)
+ip=get_ip_addr.get_ip_addr('68:c6:3a:e1:aa:9f')
+if ip==None:
+	ip='172.31.105.214'
+url = "http://"+str(ip)+"/"  # ESP's url, ex: https://192.168.102/ (Esp serial prints it when connected to wifi)
+#url = "http://172.31.105.214/"
 
 
 def get_data():
-	#proxy = req.ProxyHandler({'http': r'http://edcguest:edcguest@172.31.100.27:3128'})
-	#auth = req.HTTPBasicAuthHandler()
-	#opener = req.build_opener(proxy, auth, req.HTTPHandler)
-	#req.install_opener(opener)
+	proxy = req.ProxyHandler({'http': r'http://edcguest:edcguest@172.31.100.27:3128'})
+	auth = req.HTTPBasicAuthHandler()
+	opener = req.build_opener(proxy, auth, req.HTTPHandler)
+	req.install_opener(opener)
 	n = req.urlopen(url).read() # get the raw html data in bytes (sends request and warn our esp8266)
 	n = n.decode("utf-8") # convert raw html bytes format to string :3
 	return n	
@@ -31,7 +36,7 @@ def get_data():
 while True:
 	try:
 		data=get_data()
-		print("Your data(s) which we received from arduino: "+data)
+		print("nodeMCU_pi_interfacing_dht.py:Your data(s) which we received from arduino: "+data)
 
 		received_data=data.split()
 		
@@ -61,4 +66,4 @@ while True:
 				s.close()
 
 	except Exception as e:
-		print("Exception:"+str(e))
+		print("nodeMCU_pi_interfacing_dht.py:Exception:"+str(e))

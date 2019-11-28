@@ -42,7 +42,7 @@ s5=open(file_humidity, "a")
 s5.close()
 
 
-myclient = pymongo.MongoClient("mongodb+srv://shivangitandon:pass@cluster0-0bcsj.mongodb.net/test?retryWrites=true")
+myclient = pymongo.MongoClient("172.31.132.10")
 db = myclient.test
 
 mydb = myclient[Database_Name]
@@ -70,10 +70,10 @@ Database_Name="Restroom_SensorData"
 mydb = myclient[Database_Name]
 mycollection = mydb[Collection_Name]
 
-print("Collection Name Selected:"+Collection_Name)
+print("Atlas Database Initialiser:Collection Name Selected:"+Collection_Name)
 
 #test_time=int(input("Enter minutes to run code:"))
-print("Minutes to run code:"+str(test_time))
+print("Atlas Database Initialiser:Minutes to run code:"+str(test_time))
 
 t0=time.time()
 list_documents=[]
@@ -110,37 +110,17 @@ while True if test_time==-1 else (time.time()-t0)/60<test_time:
 	while humidity and any(x not in '0123456789.' for x in humidity[-1][:-1]):
                 humidity=humidity[:-1]
 
-	#latest values
-	'''smell=s1.readlines()
-	people=s2.readlines()
-	soap=s3.readlines()
-	temperature=s4.readlines()
-	humidity=s5.readlines()
-
-	s1.close()
-	s2.close()
-	s3.close()
-	s4.close()
-	s5.close()'''
 
 	if ((time.time()-last_uploaded) >= max_time_of_holding_buffer*60 or len(list_documents)>max_len_of_document_buffer_list) and len(list_documents)>0:
                 mycollection.insert_many(list_documents)
-                print("Documents Uploaded:")
+                print("Atlas Database Initialiser:Documents Uploaded:")
                 print(list_documents)
                 list_documents=[]
                 last_uploaded=time.time()
 
-	if (not smell or abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference) and\
-	(not people or abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference) and\
-	(not soap or abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference) and\
-	(not temperature or abs(float(temperature[-1][:-1])-float(temperature[0][:-1]))<min_temperature_difference) and\
-	(not humidity or abs(float(humidity[-1][:-1])-float(humidity[0][:-1]))<min_humidity_difference):	#slicing for excluding trailing \n
-		continue
-
-
 
 	#truncate the files and add only latest value for future comparison
-	if smell:# smell value will be false if file was empty
+	if smell:	# smell value will be false if file was empty
 		s1 = open(file_smellsensor, "w")
 		s1.write(str(smell[-1][:-1])+"\n")
 		s1.close()
@@ -161,6 +141,14 @@ while True if test_time==-1 else (time.time()-t0)/60<test_time:
 		s5.write(str(humidity[-1][:-1])+"\n")
 		s5.close()
 
+	if (not smell or abs(float(smell[-1][:-1])-float(smell[0][:-1]))<min_smell_difference) and\
+	(not people or abs(int(people[-1][:-1])-int(people[0][:-1]))<min_people_difference) and\
+	(not soap or abs(float(soap[-1][:-1])-float(soap[0][:-1]))<min_soaplevel_difference) and\
+	(not temperature or abs(float(temperature[-1][:-1])-float(temperature[0][:-1]))<min_temperature_difference) and\
+	(not humidity or abs(float(humidity[-1][:-1])-float(humidity[0][:-1]))<min_humidity_difference):        #slicing for excluding trailing \n
+		continue
+
+
 	localtime = str(datetime.datetime.now())
 
 
@@ -178,9 +166,10 @@ while True if test_time==-1 else (time.time()-t0)/60<test_time:
 	if humidity:
 		mydict['Humidity']=float(humidity[-1][:-1])
 	list_documents.append(mydict)
-	print("Entry collected:"+str(mydict))
+	print("Atlas Database Initialiser:Entry collected:"+str(mydict))
 
 
+exit(0)
 if len(list_documents)>0:
 	mycollection.insert_many(list_documents)
 #for x in list_documents:

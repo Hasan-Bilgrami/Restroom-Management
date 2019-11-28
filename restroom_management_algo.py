@@ -12,7 +12,7 @@ from sklearn import preprocessing
 
 
 Collection_Name="Computer Center"
-myclient = pymongo.MongoClient("mongodb+srv://shivangitandon:pass@cluster0-0bcsj.mongodb.net/test?retryWrites=true")
+myclient = pymongo.MongoClient("172.31.132.10")
 mydb = myclient["Restroom_SensorData"]
 mycollection = mydb[Collection_Name]
 print(myclient.list_database_names())
@@ -34,8 +34,8 @@ def updation(sense=0, threshold=0):     #Alerts cleaner when restrom reuires cle
     import requests # Python URL functions
 
     authkey = "303847AkEQ95JxrjD5dcd505c" # Your authentication key.
-    mobiles = "7753842024" # Multiple mobiles numbers separated by comma.
-    if sense==0: #ML output    
+    mobiles = "9462718719" # Multiple mobiles numbers separated by comma.
+    if sense==0: #ML output
         message = "Computer Center Restroom(M/F) requires cleaning." # Your message to send.
     elif sense==1: #Ammonia threshold exceeded
         message="Ammonia Level at Computer Center Restroom(M/F) has exceeded the threshold value at "+str(threshold)+". \nCleaner is required."
@@ -57,7 +57,7 @@ def updation(sense=0, threshold=0):     #Alerts cleaner when restrom reuires cle
 
     url = "http://sms.amarsinha.in/api/sendhttp.php" # API URL
     r = requests.post(url, data=values)
-    print (r) # Print Response
+    print ("restroom_management_algo:"+str(r)) # Print Response
     decision=False
 
 
@@ -97,13 +97,14 @@ def sensor_failure(sense):   #Alerts supervisor if a sensor does not respond
 #read ammonia sensor data
 sensors_are_operational=True    #Makes false if any sensor does not respond
 document=mycollection.find_one(sort=[("Time",-1)])
+print("restroom_management_algo:"+str(document))
 
 try:
     max_ammonia=document['Smell_Sensor']
 
     #preset threshold for ammonia
 
-    ammonia_treshold=20
+    ammonia_treshold=150
 
     #check if max value is greater than treshhold or not
 
@@ -123,7 +124,7 @@ except KeyError:
 #checkng counter treshold
 #read counter sensor data
 
-try:    
+try:
     max_count=document['People_Counter']
 
     #preset treshold for counter
@@ -134,7 +135,7 @@ try:
     #alert for counter treshold is stored in string alert_count
     if(max_count >= counter_treshold):
         alert_count='Treshold level of people counter is crossed and current level is '+str(max_count)
-        print(alert_count)
+        print("restroom_management_algo:"+alert_count)
         decision=True
         updation(2,max_count)
 except KeyError:
@@ -155,7 +156,7 @@ try:
     #alert for soap treshold is stored in string alert_soap
     if(min_level <= soap_treshold):
         alert_soap='Treshold level of soap is crossed and current level is '+str(min_level)
-        print(alert_soap)
+        print("restroom_management_algo"+alert_soap)
         decision=True
         updation(3,min_level)
 except KeyError:
@@ -171,9 +172,10 @@ if 'People_Counter' in document and 'Smell_Sensor' in document and 'Soap_Level' 
     train.describe()
 
 
-    col=['in ppm', 'persons', 'in cm']
+    colum=['in ppm', 'persons','output']
+    col=['in ppm', 'persons']
     target='output'
-
+    train=train[colum]
     from sklearn.model_selection import train_test_split
 
     #training set
@@ -181,11 +183,11 @@ if 'People_Counter' in document and 'Smell_Sensor' in document and 'Soap_Level' 
 
     #test set
     d=mycollection.find_one(sort=[("Time",-1)])
-    print(d)
+    print("restroom_management_algo:"+str(d))
     al=[]
-    al=[d['Smell_Sensor'],d['People_Counter'],d['Soap_Level']]
-    a=pd.DataFrame(columns=['in ppm', 'persons', 'in cm'],data=[al])
-    print(a)
+    al=[d['Smell_Sensor'],d['People_Counter']]
+    a=pd.DataFrame(columns=['in ppm', 'persons'],data=[al])
+    print("restroom_management_algo:"+str(a))
     test_set=a
     #IMPORT SVM MODEL
 
@@ -209,10 +211,10 @@ if 'People_Counter' in document and 'Smell_Sensor' in document and 'Soap_Level' 
         new_list.append(item)
 
     if predictions==1: #1 means cleaning reqquired
-        print("Cleaner Required")
+        print("restroom_management_algo:Cleaner Required")
         updation()
     else:
-        print("Cleaner not required")
+        print("restroom_management_algo:Cleaner not required")
     a['output']=predictions
     a.to_csv('toilet_dataset.csv',mode='a',header=False,index=False)
 
@@ -239,7 +241,7 @@ def comparison(time):
         myquery={"Time":{"$gt":str(lower_limit),"$lt":str(upper_limit)}}
         mydoc=mycollection.find_one(myquery)
         if flag==30:
-            print("No relevant sensor value found")
+            print("restroom_management_algo:No relevant sensor value found")
             return None
     return mydoc
 
@@ -276,7 +278,7 @@ for document in mycollection2.find():
 #updating treshold value of ammonia
 
 df=pd.DataFrame(columns=["Odour", "Cleanliness", "Soap Availability","Water availability","Overall Rating","Time","ammonia(in PPM)","People Count","Soap Level"],data=feedbacks)
-print(df)
+print("restroom_management_algo:"+str(df))
 #exit(0)
 ammonia=df['ammonia(in PPM)']
 people=df['People Count']
@@ -294,53 +296,54 @@ doc=mycollection.find_one(sort=[("Time",-1)])
 if 'Smell_Sensor' in doc:
     weight=[]
     for i in range(len(ammonia)):
-        if ammonia[i] >= 20:
+        if ammonia[i] >= 200:
             weight.append(1)
         else:
             if ammonia[i]!=-1:
-                ammo_prop=ammonia[i]/5+1
+                ammo_prop=ammonia[i]/50+1
                 user_feedback=userodour[i]
                 ammo_prop=6-ammo_prop     #to calculate deviation
                 dev=abs(ammo_prop-user_feedback)  #deviation
-                weight.append(1-(1/4)*dev)
+                weight.append(1-(1/6)*dev)
     length=len(weight)
-    df['weight']=weight
-    feedback_with_weight=[]
-    #total_weight=sum(weight)
-    #mean_weight=total_weight/len(ammonia)
-    counter=0
-    literacy_rate=0.7    #In Fractions
-    for i in range(len(ammonia)):
-        if ammonia[i]!=-1:
-            feedback_with_weight.append(userodour[i]*weight[counter]*literacy_rate)
-            counter=counter+1
+    if length > 0:
+        df['weight']=weight
+        feedback_with_weight=[]
+        #total_weight=sum(weight)
+        #mean_weight=total_weight/len(ammonia)
+        counter=0
+        literacy_rate=0.7    #In Fractions
+        for i in range(len(ammonia)):
+            if ammonia[i]!=-1:
+                feedback_with_weight.append(userodour[i]*weight[counter]*literacy_rate)
+                counter=counter+1
 
-    minimum=min(feedback_with_weight)
-    maximum=max(feedback_with_weight)
-    diff=maximum-minimum
-    mean_feedback=statistics.mean(feedback_with_weight)
-    normalized_weight=[]
-    for i in range(length):
-        x=abs(feedback_with_weight[i]-mean_feedback)/diff
-        if(feedback_with_weight[i]<mean_feedback):
-            normalized_weight.append(0.5-x)
-        else:
-            normalized_weight.append(0.5+x)
+        #minimum=min(feedback_with_weight)
+        #maximum=max(feedback_with_weight)
+        #diff=maximum-minimum
+        #mean_feedback=statistics.mean(feedback_with_weight)
+        #normalized_weight=[]
+        #for i in range(length):
+            #x=abs(feedback_with_weight[i]-mean_feedback)/diff
+            #if(feedback_with_weight[i]<mean_feedback):
+                #normalized_weight.append(0.5-x)
+            #else:
+                #normalized_weight.append(0.5+x)
 
-    total_weight=sum(weight)
-    new_feedback=sum(normalized_weight)/total_weight
-    new_feedback=new_feedback*5
+        total_weight=sum(weight)
+        new_feedback=sum(feedback_with_weight)/total_weight
+        #new_feedback=new_feedback*5
 
-    print("The mapped odour feedback is\n")
-    print(new_feedback)
+        print("restroom_management_algo:The mapped odour feedback is\n")
+        print(new_feedback)
 
-    curr_treshold=ammonia_treshold/5
-    #updating treshold
-    new_treshold=3-new_feedback
-    ammonia_treshold=curr_treshold+new_treshold/2
-    ammonia_treshold=ammonia_treshold*5
-    print("The updated Ammonia threshold is\n")
-    print(ammonia_treshold)
+        curr_treshold=ammonia_treshold/40
+        #updating treshold
+        new_treshold=3-new_feedback
+        ammonia_treshold=curr_treshold+new_treshold/2
+        ammonia_treshold=ammonia_treshold*40
+        print("restroom_management_algo:The updated Ammonia threshold is\n")
+        print(ammonia_treshold)
 
 if 'People_Counter' in doc:
     weight=[]
@@ -355,24 +358,25 @@ if 'People_Counter' in doc:
                 dev=abs(ammo-user_feedback)  #deviation
                 weight.append(1-(1/4)*dev)
     length=len(weight)
-    df['weight']=weight
-    feedback_with_weight=[]
-    counter=0
-    for i in range(len(people)):
-        if people[i]!=-1:
-            feedback_with_weight.append(userclean[i]*weight[counter]*literacy_rate)
-            counter=counter+1
-    total_weight=sum(weight)
-    new_feedback=sum(feedback_with_weight)/total_weight
-    print("the mapped cleanliness feedback is")
-    print(new_feedback)
-    curr_treshold=2
-    #updating treshold
-    new_treshold=3-new_feedback
-    counter_treshold=curr_treshold+new_treshold/2
-    counter_treshold=counter_treshold*40
-    print("the updated people counter threshold is")
-    print(counter_treshold)
+    if length > 0:
+        df['weight']=weight
+        feedback_with_weight=[]
+        counter=0
+        for i in range(len(people)):
+            if people[i]!=-1:
+                feedback_with_weight.append(userclean[i]*weight[counter]*literacy_rate)
+                counter=counter+1
+        total_weight=sum(weight)
+        new_feedback=sum(feedback_with_weight)/total_weight
+        print("restroom_management_algo:the mapped cleanliness feedback is")
+        print(new_feedback)
+        curr_treshold=counter_treshold/40
+        #updating treshold
+        new_treshold=3-new_feedback
+        counter_treshold=curr_treshold+new_treshold/2
+        counter_treshold=counter_treshold*40
+        print("restroom_management_algo:the updated people counter threshold is")
+        print(counter_treshold)
 
 
 
