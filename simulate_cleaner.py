@@ -7,7 +7,7 @@ import pymongo
 import datetime
 from random import uniform
 
-def select_cleaner():	#Allows user to select cleaner
+def select_cleaner():	#Allows user to select cleaner, returns string
 	Database_Name="Restroom_Management"
 	Collection_Name="cleaners" #for list of cleaners
 
@@ -31,10 +31,10 @@ def select_cleaner():	#Allows user to select cleaner
 		return Cleaner_Name
 	except Exception as e:
 		print("Invalid Selection:"+str(e))
-		select_cleaner()
+		return select_cleaner()
 
 
-def select_restroom():	#Allows user to select restroom
+def select_restroom():	#Allows user to select restroom, returns string
 	Database_Name="Restroom_Management"
 	Collection_Name="restrooms" #for list of cleaners
 
@@ -58,7 +58,7 @@ def select_restroom():	#Allows user to select restroom
 		return Restroom_Name
 	except Exception as e:
 		print("Invalid Selection:"+str(e))
-		select_restroom()
+		return select_restroom()
 
 
 Database_Name="Cleaning_Staff"
