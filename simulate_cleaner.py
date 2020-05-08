@@ -28,10 +28,10 @@ def select_cleaner():	#Allows user to select cleaner
 		cleaner_serial_number+=1
 	try:
 		Cleaner_Name=cleaner_serial_hash[int(input("Input:"))]
+		return Cleaner_Name
 	except Exception as e:
 		print("Invalid Selection:"+str(e))
 		select_cleaner()
-	return Cleaner_Name
 
 
 def select_restroom():	#Allows user to select restroom
@@ -55,10 +55,10 @@ def select_restroom():	#Allows user to select restroom
 		restroom_serial_number+=1
 	try:
 		Restroom_Name=restroom_serial_hash[int(input("Input:"))]
+		return Restroom_Name
 	except Exception as e:
 		print("Invalid Selection:"+str(e))
 		select_restroom()
-	return Restroom_Name
 
 
 Database_Name="Cleaning_Staff"
