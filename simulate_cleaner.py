@@ -5,6 +5,7 @@ Allows user to select cleaner from collection Cleaning_Staff.cleaners, simulate 
 
 import pymongo
 import datetime
+from random import uniform
 
 def select_cleaner():	#Allows user to select cleaner
 	Database_Name="Restroom_Management"
@@ -61,7 +62,7 @@ def select_restroom():	#Allows user to select restroom
 
 
 Database_Name="Cleaning_Staff"
-Collection_Name=select_cleaner() #for list of restrooms
+Collection_Name=select_cleaner()
 
 myclient = pymongo.MongoClient("mongodb+srv://shivangitandon:pass@cluster0-0bcsj.mongodb.net/test?retryWrites=true")
 db = myclient.test
@@ -71,7 +72,7 @@ mycollection = mydb[Collection_Name]
 
 restroom_name=select_restroom()
 
-document={"Restroom":restroom_name,"Entry":str(datetime.datetime.now())}
+document={"Restroom":restroom_name,"Entry":str(datetime.datetime.now()),"Exit":str(datetime.datetime.now()+datetime.timedelta(seconds=int(uniform(300,600))))}
 try:
 	mycollection.insert_one(document)
 	print("Document Uploaded:"+str(document))
