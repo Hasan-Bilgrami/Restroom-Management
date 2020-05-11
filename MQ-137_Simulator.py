@@ -37,7 +37,7 @@ for i in range((test_time*60)//time):
 		pass
 
 	s=open(file_name, "a")
-	s.write(str(abs(randomvalue))+"\n")
+	s.write(str(abs(randomvalue))[:5]+"\n")
 	s.close()
 	if randomvalue<cleaner_min_val:
 		randomvalue=randomvalue - (randomvalue/10)+uniform(0,0.05)

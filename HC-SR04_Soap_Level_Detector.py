@@ -36,7 +36,7 @@ for i in range((test_time*60)//time):
 		pass
 
 	s=open(file_name, "a")
-	s.write(str(max(initial_soap_level,0))+"\n")
+	s.write(str(max(initial_soap_level,0))[:4]+"\n")
 	s.close()
 	initial_soap_level-=(choice([0,1]))*uniform(0.3,max(time//10,2)//1.5) #soap used is a function of variable time
 	sleep(time)

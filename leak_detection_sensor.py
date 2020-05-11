@@ -35,5 +35,5 @@ for i in range((test_time*60)//time):
 	s=open(file_name, "a")
 	s.write(str(randomvalue)+"\n")
 	s.close()
-	randomvalue=min(randomvalue+int(uniform(0,3)),150)
+	randomvalue=min(randomvalue+int(uniform(0,2)),150)
 	sleep(time)
