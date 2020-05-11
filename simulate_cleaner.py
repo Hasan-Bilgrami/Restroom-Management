@@ -7,6 +7,8 @@ import pymongo
 import datetime
 from random import uniform
 
+file_name='cleaner.txt' #bool:<odour><soap><temperature><humidity><wetness>
+
 def select_cleaner():	#Allows user to select cleaner, returns string
 	Database_Name="Restroom_Management"
 	Collection_Name="cleaners" #for list of cleaners
@@ -76,6 +78,10 @@ document={"Restroom":restroom_name,"Entry":str(datetime.datetime.now()),"Exit":s
 try:
 	mycollection.insert_one(document)
 	print("Document Uploaded:"+str(document))
+	#informing the sensor simulators
+	s=open(file_name, "w")
+	s.write("11111")
+	s.close()
 except Exception as e:
 	print("Document upload FAILED:"+str(e))
 
