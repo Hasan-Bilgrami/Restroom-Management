@@ -13,6 +13,7 @@ print("Moisture "+str(getpid()))
 time=20 #periodicity of return value in seconds
 file_name="Moisture.txt"
 cleaner_file_name='cleaner.txt'
+permanent_file_name="permanent_Moisture.txt"
 cleaner_min_val=-0.1
 
 test_time=int(argv[1])		#int(input("Enter minutes to run code:"))
@@ -35,5 +36,8 @@ for i in range((test_time*60)//time):
 	s=open(file_name, "a")
 	s.write(str(randomvalue)+"\n")
 	s.close()
+	f=open(permanent_file_name,'a')
+	f.write(str(randomvalue)+"\n")
+	f.close()
 	randomvalue=min(randomvalue+int(uniform(0,2)),150)
 	sleep(time)

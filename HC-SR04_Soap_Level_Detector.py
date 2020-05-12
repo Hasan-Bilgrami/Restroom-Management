@@ -11,6 +11,7 @@ https://lastminuteengineers.com/arduino-sr04-ultrasonic-sensor-tutorial/
 print("Soap "+str(getpid()))
 time=20 #periodicity of return value in seconds
 file_name="SoapUsage.txt"
+permanent_file_name="permanenr_Soapusage.txt"
 cleaner_file_name='cleaner.txt'
 
 #s=open(file_name, "w")						#to be removed
@@ -38,5 +39,8 @@ for i in range((test_time*60)//time):
 	s=open(file_name, "a")
 	s.write(str(max(initial_soap_level,0))[:4]+"\n")
 	s.close()
+	f=open(permanent_file_name,'a')
+	f.write(str(max(initial_soap_level,0))[:4]+"\n")
+	f.close()
 	initial_soap_level-=(choice([0,1]))*uniform(0.3,max(time//10,2)//1.5) #soap used is a function of variable time
 	sleep(time)

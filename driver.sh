@@ -8,7 +8,10 @@ python HC-SR04_Soap_Level_Detector.py $n &
 python PIR_Movement_Count.py $n &
 python DHT_Simulator.py $n &
 python leak_detection_sensor.py $n&
-timeout 25
-python Atlas\ Database\ Initialiser.py $n
-
+python Atlas\ Database\ Initialiser.py $n&
+for (( c=0; c<$n; c=c+1 ))
+do
+sleep 60
+python updated3_restroom_management_algo.py
+done
 

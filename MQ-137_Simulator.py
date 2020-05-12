@@ -13,6 +13,7 @@ print("MQ-137 "+str(getpid()))
 
 time=20 #periodicity of return value in seconds
 file_name="ammonia.txt"
+permanent_file_name="permanent_ammonia.txt"
 cleaner_file_name='cleaner.txt'
 cleaner_min_val=-0.1
 
@@ -39,6 +40,9 @@ for i in range((test_time*60)//time):
 	s=open(file_name, "a")
 	s.write(str(abs(randomvalue))[:5]+"\n")
 	s.close()
+	f=open(permanent_file_name,'a')
+	f.write(str(abs(randomvalue))[:5]+"\n")
+	f.close()
 	if randomvalue<cleaner_min_val:
 		randomvalue=randomvalue - (randomvalue/10)+uniform(0,0.05)
 	else:	

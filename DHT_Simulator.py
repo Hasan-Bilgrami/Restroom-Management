@@ -12,6 +12,9 @@ print("DHT "+str(getpid()))
 time=20 #periodicity of return value in seconds
 file_temperature="Temperature.txt"
 file_humidity="Humidity.txt"
+permanent_file_temperature="permanent_temperature.txt"
+permanent_file_humidity="permanent_humidity.txt"
+
 
 test_time=int(argv[1])		#int(input("Enter minutes to run code:"))
 
@@ -22,11 +25,17 @@ for i in range((test_time*60)//time):
 	s=open(file_temperature, "a")
 	s.write(str(temp_value)[:4]+"\n")#Precision:0.1
 	s.close()
+	f=open(permanent_file_temperature,'a')
+	f.write(str(temp_value)[:4]+"\n")
+	f.close()
 	temp_value=max(min(40,temp_value+uniform(-0.1,0.1)),30)	#Temperature between 30 and 40
 
 	s=open(file_humidity, "a")
 	s.write(str(humidity_value)[:2]+"\n")#Precision:1
 	s.close()
+	f=open(permanent_file_humidity,'a')
+	f.write(str(humidity_value)[:2]+"\n")
+	f.close()
 	humidity_value=max(min(60,humidity_value+uniform(-0.1,0.1)),50) #Humidity between 50 and 60
 
 	sleep(time)

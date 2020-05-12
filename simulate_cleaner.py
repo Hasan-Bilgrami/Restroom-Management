@@ -7,7 +7,7 @@ import pymongo
 import datetime
 from random import uniform
 
-file_name='cleaner.txt' #bool:<odour><soap><temperature><humidity><wetness>
+file_name='cleaner.txt' #bool:<odour><soap><people><dht><wetness>
 
 def select_cleaner():	#Allows user to select cleaner, returns string
 	Database_Name="Restroom_Management"
@@ -72,7 +72,7 @@ db = myclient.test
 mydb = myclient[Database_Name]
 mycollection = mydb[Collection_Name]
 
-restroom_name=select_restroom()
+restroom_name='Computer Center'		#select_restroom()
 
 document={"Restroom":restroom_name,"Entry":str(datetime.datetime.now()),"Exit":str(datetime.datetime.now()+datetime.timedelta(seconds=int(uniform(300,600))))}
 try:

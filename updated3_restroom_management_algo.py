@@ -8,7 +8,10 @@ import pymongo
 import datetime
 import statistics
 from sklearn import preprocessing
+from os import getpid
 
+
+print("Algo "+str(getpid()))
 Collection_Name = "Computer Center"
 myclient = pymongo.MongoClient("mongodb+srv://shivangitandon:pass@cluster0-0bcsj.mongodb.net/test?retryWrites=true")
 mydb = myclient["Restroom_SensorData"]
@@ -114,7 +117,7 @@ try:
 
     # preset threshold for ammonia
 
-    ammonia_treshold = 150
+    ammonia_treshold = 1
 
     # check if max value is greater than treshhold or not
 
@@ -140,7 +143,7 @@ try:
     max_count = document['People_Counter']
 
     # preset treshold for counter
-    counter_treshold = 200
+    counter_treshold = 20
 
     # check if max value is greater than treshhold or not
     max_count = int(max_count)
@@ -182,7 +185,7 @@ except KeyError:
 try:
     max_level = document['Wetness']
     # preset treshold for soap level
-    wetness_treshold = 150
+    wetness_treshold = 50
     # check if max value is greater than threshold or not
     max_level = float(max_level)
     # alert for wetness treshold is stored in string alert_soap
@@ -279,7 +282,7 @@ def comparison(time):
         myquery = {"Time": {"$gt": str(lower_limit), "$lt": str(upper_limit)}}
         mydoc = mycollection.find_one(myquery)
         if flag == 30:
-            print("restroom_management_algo:No relevant sensor value found")
+            #print("restroom_management_algo:No relevant sensor value found")
             return None
     return mydoc
 
