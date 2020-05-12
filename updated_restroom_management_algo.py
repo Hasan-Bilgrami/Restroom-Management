@@ -61,6 +61,14 @@ def updation(sense=0, threshold=0):     #Alerts cleaner when restrom reuires cle
     print ("restroom_management_algo:"+str(r)) # Print Response
     decision=False
 
+def updation_negative():     #Cleaner not required
+    Collection = "restrooms"
+    mydb = myclient["Restroom_Management"]
+    mycollection1 = mydb[Collection]
+    myquery={ "Name": Collection_Name}
+    newvalues={ "$set": { "Cleaner_Required": False}}
+    mycollection1.update_many(myquery,newvalues)
+
 
 def sensor_failure(sense):   #Alerts supervisor if a sensor does not respond
     import requests # Python URL functions
@@ -233,9 +241,11 @@ if 'People_Counter' in document and 'Smell_Sensor' in document and 'Soap_Level' 
 
     if predictions==1: #1 means cleaning reqquired
         print("restroom_management_algo:Cleaner Required")
-        updation()
+        updation() 
     else:
         print("restroom_management_algo:Cleaner not required")
+        updation_negative()
+
     a['output']=predictions
     a.to_csv('toilet_dataset.csv',mode='a',header=False,index=False)
 
@@ -398,7 +408,6 @@ if 'People_Counter' in doc:
         counter_treshold=counter_treshold*40
         print("restroom_management_algo:the updated people counter threshold is")
         print(counter_treshold)
-
 
 
 
