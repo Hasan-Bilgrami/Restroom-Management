@@ -62,8 +62,9 @@ def updation(sense=0, threshold=0):  # Alerts cleaner when restrom reuires clean
     }
 
     url = "http://sms.amarsinha.in/api/sendhttp.php"  # API URL
-    r = requests.post(url, data=values)
-    print("restroom_management_algo:" + str(r))  # Print Response
+    #r = requests.post(url, data=values)
+    #print("restroom_management_algo:" + str(r))  # Print Response
+    print("SMS Sent to Cleaner")
     decision = False
 
 
@@ -102,8 +103,9 @@ def sensor_failure(sense):  # Alerts supervisor if a sensor does not respond
     }
 
     url = "http://sms.amarsinha.in/api/sendhttp.php"  # API URL
-    r = requests.post(url, data=values)
-    print(r)  # Print Response
+    print("SMS Sent to Supervisor")
+    #r = requests.post(url, data=values)
+    #print(r)  # Print Response
 
 
 # checking ammonia treshold
